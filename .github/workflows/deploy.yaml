@@ -25,3 +25,5 @@ jobs:
         aws cloudformation deploy \
           --template-file template.yaml \
           --stack-name MiPrimerStackConGITHUB \
+          --capabilities CAPABILITY_IAM \
+          --no-fail-on-empty-changeset 
