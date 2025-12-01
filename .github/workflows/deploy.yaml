@@ -20,22 +20,8 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
 
-    - name: MinTic Check and delete failed stack if exists
-      run: |
-        STACK_STATUS=$(aws cloudformation describe-stacks --stack-name MiPrimerStackConGITHUB --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "NONE")
-        if [ "$STACK_STATUS" = "ROLLBACK_COMPLETE" ] || [ "$STACK_STATUS" = "DELETE_FAILED" ]; then
-          echo "Stack en estado $STACK_STATUS, eliminando..."
-          aws cloudformation delete-stack --stack-name MiPrimerStackConGITHUB
-          aws cloudformation wait stack-delete-complete --stack-name MiPrimerStackConGITHUB
-          echo "Stack eliminado exitosamente"
-        else
-          echo "Stack en estado: $STACK_STATUS"
-        fi
-
     - name: MinTic Deploy CloudFormation stack
       run: |
         aws cloudformation deploy \
           --template-file template.yaml \
           --stack-name MiPrimerStackConGITHUB \
-          --capabilities CAPABILITY_IAM \
-          --no-fail-on-empty-changeset 
