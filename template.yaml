@@ -3,17 +3,11 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: Arquitectura Mintic con VPC, 2 AZ, 2 Subnets Públicas, 2 EC2 estáticas, 4 EC2 en ASG y ALB con GatewayInternet
 
 Parameters:
-  # Parámetro para definir el nombre del par de claves SSH
-  MinticKeyName:
-    Description: Nombre del par de claves SSH
-    Type: AWS::EC2::KeyPair::KeyName
-    Default: ssh-iac-mintic-ec2
-
   # Parámetro para definir la AMI que usarán las instancias EC2
   MinticAmiId:
-    Description: AMI para las instancias EC2
+    Description: AMI para las instancias EC2 (Amazon Linux 2023)
     Type: String
-    Default: ami-0f88e80871fd81e91
+    Default: ami-0c02fb55b56c1c4fb
 
 Resources:
 
@@ -114,7 +108,6 @@ Resources:
     Properties:
       ImageId: !Ref MinticAmiId
       InstanceType: t3.micro
-      KeyName: !Ref MinticKeyName
       NetworkInterfaces:
         - AssociatePublicIpAddress: true
           SubnetId: !Ref MinticPublicSubnet1
@@ -135,8 +128,7 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: !Ref MinticAmiId
-      InstanceType: t.micro
-      KeyName: !Ref MinticKeyName
+      InstanceType: t3.micro
       NetworkInterfaces:
         - AssociatePublicIpAddress: true
           SubnetId: !Ref MinticPublicSubnet2
@@ -193,7 +185,6 @@ Resources:
       LaunchTemplateData:
         ImageId: !Ref MinticAmiId
         InstanceType: t3.micro
-        KeyName: !Ref MinticKeyName
         SecurityGroupIds:
           - !Ref MinticSecurityGroup
         UserData:
