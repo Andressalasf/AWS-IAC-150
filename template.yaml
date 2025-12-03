@@ -135,7 +135,7 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: !Ref MinticAmiId
-      InstanceType: t3.micro
+      InstanceType: t.micro
       KeyName: !Ref MinticKeyName
       NetworkInterfaces:
         - AssociatePublicIpAddress: true
