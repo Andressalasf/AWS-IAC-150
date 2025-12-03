@@ -25,3 +25,4 @@ jobs:
         aws cloudformation deploy \
           --template-file template.yaml \
           --stack-name MiPrimerStackConGITHUB \
+          --capabilities CAPABILITY_NAMED_IAM
