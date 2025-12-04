@@ -1,0 +1,68 @@
+name: MinTic Delete AWS CloudFormation Stacks
+
+on:
+  workflow_dispatch:
+
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: MinTic Checkout and download repository
+      uses: actions/checkout@v3
+
+    - name: MinTic Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Delete All Stacks and Resources
+      run: |
+        echo "Eliminando todos los stacks y recursos..."
+        
+        # Stage 6: Delete ASG Stack (elimina ASG, LaunchTemplate, WarmPool)
+        echo "Eliminando ASG Stack..."
+        aws cloudformation delete-stack --stack-name MinticASGStack || true
+        aws cloudformation wait stack-delete-complete --stack-name MinticASGStack 2>/dev/null || true
+        echo "ASG Stack eliminado"
+        
+        # Stage 5: Delete ALB Stack (elimina ALB, TargetGroup, Listener)
+        echo "Eliminando ALB Stack..."
+        aws cloudformation delete-stack --stack-name MinticALBStack || true
+        aws cloudformation wait stack-delete-complete --stack-name MinticALBStack 2>/dev/null || true
+        echo "ALB Stack eliminado"
+        
+        # Stage 4: Delete EC2 Stack (elimina 2 instancias EC2 estáticas)
+        echo "Eliminando EC2 Stack..."
+        aws cloudformation delete-stack --stack-name MinticEC2Stack || true
+        aws cloudformation wait stack-delete-complete --stack-name MinticEC2Stack 2>/dev/null || true
+        echo "EC2 Stack eliminado"
+        
+        # Stage 3: Delete Security Stack (elimina Security Group)
+        echo "Eliminando Security Stack..."
+        aws cloudformation delete-stack --stack-name MinticSecurityStack || true
+        aws cloudformation wait stack-delete-complete --stack-name MinticSecurityStack 2>/dev/null || true
+        echo "Security Stack eliminado"
+        
+        # Stage 2: Delete VPC Stack (elimina VPC, Subnets, IGW, Route Table)
+        echo "Eliminando VPC Stack..."
+        aws cloudformation delete-stack --stack-name MinticVPCStack || true
+        aws cloudformation wait stack-delete-complete --stack-name MinticVPCStack 2>/dev/null || true
+        echo "VPC Stack eliminado"
+        
+        # Delete old monolithic stack if exists (elimina toda la arquitectura antigua)
+        echo "Eliminando stack monolítico antiguo (si existe)..."
+        aws cloudformation delete-stack --stack-name MinticFullArchitecture || true
+        aws cloudformation wait stack-delete-complete --stack-name MinticFullArchitecture 2>/dev/null || true
+        echo "Stack monolítico eliminado"
+        
+        echo ""
+        echo "Todos los stacks y recursos eliminados exitosamente!"
+        echo "Recursos eliminados:"
+        echo "   - Auto Scaling Group + WarmPool"
+        echo "   - Application Load Balancer + TargetGroup"
+        echo "   - 2 Instancias EC2 estáticas"
+        echo "   - Security Group"
+        echo "   - VPC + Subnets + Internet Gateway + Route Table"
